@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Übungsblatt 2</title>
+
+    <link rel="stylesheet" href="/libs/ol-v6.4.3/ol.css">
+
+<style>
+  #map3{
+    width: 100%;
+    height: 500px;
+  }
+
+ nav ul {
+    list-style-type: none; 	  
+    width: 100%;
+    height: 100%;
+    border: 0px solid;
+    padding: 4px;
+    display: inline;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-size: 17px;
+  }
+
+  nav li {
+    margin: 15px; 
+    background-color: none;
+    display: inline;
+    color:black;
+
+  }
+  nav a {
+    text-decoration: none; 
+    font-weight: bold;
+    color:black; 
+    display: inline;
+    font-family: 'Times New Roman', Times, serif;
+    margin: 15px;
+  }
+  nav a:focus,
+  nav a:hover,
+  nav a:active {    
+    text-decoration:underline;
+  }
+  
+h2{color: black;font-size: 26px; font-weight: normal ;
+text-align: left; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 10px; padding: 10px;}
+
+
+</style>
+  
+<script src='/libs/ol-v6.4.3/ol.js' type='text/javascript'></script>
+
+<script type='text/javascript' src='/libs/papa-v5.0.2/papaparse.min.js'></script>
+
+</head>
+
+
+<body>
+
+<nav>
+    <ul>       
+               <a href="index.html"><li>Home</li></a> 
+               <a href="page-1.html"><li>GeoJSON</li></a>
+               <a href="page-2.html"><li>Tilecache</li></a>   
+           <li class="page-3.html">CSV</li>  
+    </ul>
+</nav>
+
+<br>
+<h2>Karte mit Daten einer lokalen CSV Datei</h2>
+
+
+<input type="file" onchange="readfile(this.files)">
+
+
+<script type="text/javascript">
+
+function readFile(fileList) {
+  let csvFile = fileList[0];
+
+   Papa.parse(csvFile, {
+    header: false,
+    skipEmptyLines: true,
+    error: onError,
+    complete: onComplete
+  })
+}
+
+function onComplete(result) {
+  let data = result.data;
+  let coordinates = [];
+  data.forEach(function(item, index) {
+    let zahl1 = +(item[1]);
+    let zahl2 = +(item[2]);
+    coordinates.push(new ol.Feature({
+    name: "Staedte",
+    geometry: new ol.geom.Point{[zahl1, zahl2]},
+    label: item[0]
+    }));
+  });
+}
+
+let vectorStyle = new ol.style.Style({
+  image: new ol.style.Circle({
+    fill: new ol.style.Fill({color: "rgb(255, 0, 0"}),
+    radius: 6
+  })
+});
+
+let vectorLayer = new ol.layer.Vector({
+  source: new ol.source.Vector({
+    features: coordinates}),
+  style: vectorStyle
+});
+
+basemap.addLayer(vectorLayer);
+
+
+function onError(error) {
+  alert(JSON.stringify(error, null,2));
+}
+
+</script>
+
+
+<div id="map3" class="map3"></div>
+
+<script type="text/javascript">
+
+let basemap = new ol.Map({
+    target: 'map3',
+    view: new ol.View({
+      center: ol.proj.fromLonLat([10.450196, 51.769200]), 
+      zoom: 5.5,
+      projection: "EPSG:3857"
+    }),
+     layers: [
+       new ol.layer.Tile({
+        source: new ol.source.OSM()
+      })]
+});
+
+</script>
+
+
+</body>
+</html>
